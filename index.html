@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Análise - L.D.C.</title>
+    
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #f97316; /* Laranja estilo Firecrawl/Moderno */
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 600px;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid #334155;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .btn-scan {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-scan:hover {
+            background-color: #ea580c;
+            transform: translateY(-2px);
+        }
+
+        /* Área de carregamento */
+        .loading-area {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .spinner {
+            color: var(--accent);
+            font-size: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 15px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        /* Área do Dossiê Oculto */
+        .dossier-area {
+            display: none;
+            margin-top: 30px;
+            text-align: left;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #475569;
+            padding: 20px;
+            border-radius: 8px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 15px;
+        }
+
+        .profile-icon {
+            font-size: 40px;
+            color: var(--danger);
+        }
+
+        .profile-name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 22px;
+            color: var(--danger);
+        }
+
+        .dossier-item {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .dossier-item i {
+            color: var(--accent);
+            margin-top: 4px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .dossier-item strong {
+            display: block;
+            color: #cbd5e1;
+            margin-bottom: 2px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .dossier-item span {
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        
+        .alert-box {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger);
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #fca5a5;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Sistema de Verificação de Entidades</h1>
+        <p class="subtitle">Análise avançada de banco de dados e registros civis.</p>
+
+        <button class="btn-scan" id="btnScan" onclick="startScan()">
+            <i class="fa-solid fa-fingerprint"></i> Executar Varredura
+        </button>
+
+        <div class="loading-area" id="loadingArea">
+            <i class="fa-solid fa-circle-notch spinner"></i>
+            <p class="loading-text" id="loadingText">Acessando servidores...</p>
+        </div>
+
+        <div class="dossier-area" id="dossierArea">
+            <div class="profile-header">
+                <i class="fa-solid fa-biohazard profile-icon"></i>
+                <div>
+                    <div class="profile-name">LEONARDO DIAS COSTAS</div>
+                    <div style="color: var(--danger); font-size: 12px; font-weight: bold;">[ ALVO IDENTIFICADO ]</div>
+                </div>
+            </div>
+
+            <div class="dossier-item">
+                <i class="fa-solid fa-beer-mug-empty"></i>
+                <div>
+                    <strong>Status Etílico:</strong>
+                    <span>Condição irreversível. O sangue do indivíduo foi substituído por puro malte e destilados. Risco de combustão espontânea.</span>
+                </div>
+            </div>
+
+            <div class="dossier-item">
+                <i class="fa-solid fa-goat"></i>
+                <div>
+                    <strong>Identidade Oculta:</strong>
+                    <span>Testes de DNA confirmam: trata-se da própria encarnação de Baphomet disfarçada no plano terrestre.</span>
+                </div>
+            </div>
+
+            <div class="dossier-item">
+                <i class="fa-solid fa-paw"></i>
+                <div>
+                    <strong>Anomalia Anatômica:</strong>
+                    <span>Pelagem nível "Lobisomem da Lua Cheia" concentrada na região das nádegas. Necessita de tosa higiênica industrial.</span>
+                </div>
+            </div>
+
+            <div class="dossier-item">
+                <i class="fa-solid fa-heart-pulse"></i>
+                <div>
+                    <strong>Relacionamento:</strong>
+                    <span>Tentativas de esconder o caso com o Vitor falharam. O sistema já detectou a dependência emocional.</span>
+                </div>
+            </div>
+
+            <div class="alert-box">
+                DIAGNÓSTICO: ZERO SALVAÇÃO. RECOMENDAÇÃO: VÁ CATAR COQUINHO.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function startScan() {
+            const btn = document.getElementById('btnScan');
+            const loading = document.getElementById('loadingArea');
+            const dossier = document.getElementById('dossierArea');
+            const text = document.getElementById('loadingText');
+
+            btn.style.display = 'none';
+            loading.style.display = 'block';
+
+            const phrases = [
+                "Quebrando criptografia...",
+                "Buscando histórico do bar...",
+                "Analisando conversas com o Vitor...",
+                "Calculando densidade dos pelos..."
+            ];
+
+            let count = 0;
+            const interval = setInterval(() => {
+                if(count < phrases.length) {
+                    text.innerText = phrases[count];
+                    count++;
+                }
+            }, 1200);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                loading.style.display = 'none';
+                dossier.style.display = 'block';
+            }, 6000);
+        }
+    </script>
+</body>
+</html>
